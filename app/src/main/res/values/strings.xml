@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="ble_not_supported">BLE wird nicht unterstützt</string>
+    <string name="label_data">Daten:</string>
+    <string name="label_device_address">Geräte-Adresse:</string>
+    <string name="label_state">Zustand:</string>
+    <string name="no_data">Keine Daten</string>
+    <string name="connected">Verbunden</string>
+    <string name="connecting">Am Verbinden</string>
+    <string name="disconnected">Getrennt</string>
+    <string name="title_devices">BLE Geräte Scan</string>
+    <string name="error_bluetooth_not_supported">Bluetooth wird nicht unterstützt.</string>
+
+    <string name="unknown_device">Unbekanntes Gerät</string>
+    <string name="unknown_characteristic">Unbekanntes Charakteristik</string>
+    <string name="unknown_service">Unbekanntes Service</string>
+
+    <!-- Menu items -->
+    <string name="menu_connect">Verbinden</string>
+    <string name="menu_connecting">Am Verbinden</string>
+    <string name="menu_disconnect">Getrennt</string>
+    <string name="menu_scan">Scan</string>
+    <string name="menu_stop">Stop</string>
+
+    <string name="applicationDefaultP">ApplicationDefault</string>
+    <string name="maxP">MAX</string>
+    <string name="highP">HIGH</string>
+    <string name="defaultP">DEFAULT</string>
+    <string name="lowP">LOW</string>
+    <string name="minP">MIN</string>
+    <string name="testFilter">testFilter</string>
+    <string name="alarmDialog">Please push the save button to finish this activity</string>
+    <string name="ok">I understand</string>
+    <string name="questionnaireTitle">Bitte beantworten sie folgende Fragen:</string>
+    <string name="save_answers">Antworten speichern</string>
+    <string name="alarm_reminder_instruction">Stellen sie bitte den Zeitpunkt ein, in der Sie Zeit haben die Fragen zu beantworten. Zeitpunkt sollte am besten zwischen 20:00 und 00:00 sein.</string>
+    <string name="alarm_reminder_text">Alarm ist zurzeit für diese Uhrzeit gestellt.</string>
+    <string name="vibration">Vibration</string>
+    <string name="sound">Sound</string>
+    <string name="compression">Kompression</string>
+    <string name="back_main">Zurück ins Hauptmenü</string>
+    <string name="accept">Übernehmen</string>
+    <string name="test_feedback">Feedback testen</string>
+    <string name="cancel">Abbruch</string>
+    <string name="time_alarm">00:00</string>
+    <string name="set_alarm">Alarm setzen</string>
+    <string name="scan_for_device">Nach Geräten scannen</string>
+    <string name="feedback_customization">Feedback anpassen</string>
+    <string name="notification_title">Notification Titel</string>
+    <string name="notification_content">Notification Inhalt</string>
+    <string name="question">Frage</string>
+    <string name="answer1">Ich war zu beschäftigt</string>
+    <string name="answer2">Ich habe die Notification nicht bemerkt.</string>
+    <string name="answer3">Die Notification war nicht wichtig genug um zeitnah darauf zu reagieren.</string>
+
+
+    <string-array name="patterns_array">
+        <item>Kein Feedback</item>
+        <item>Pattern 1</item>
+        <item>Pattern 2</item>
+        <item>Pattern 3</item>
+        <item>Pattern 4</item>
+    </string-array>
+
+    <string-array name="patterns_v_array">
+        <item>Kein Feedback</item>
+        <item>Pattern 1</item>
+        <item>Pattern 2</item>
+        <item>Pattern 3</item>
+        <item>Pattern 4</item>
+    </string-array>
+
+    <string-array name="strength_array">
+        <item>Schwach</item>
+        <item>Stark </item>
+    </string-array>
+</resources>

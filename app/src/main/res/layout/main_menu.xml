@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:gravity="center_vertical"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Hello"
+        android:id="@+id/alarmReminder"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/time_alarm"
+        android:textSize="50dp"
+        android:id="@+id/alarmTime"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_width="235dp"
+        android:layout_height="wrap_content"
+        android:text="@string/set_alarm"
+        android:id="@+id/button4"
+        android:onClick="setAlarmTime"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_width="235dp"
+        android:layout_height="wrap_content"
+        android:text="@string/scan_for_device"
+        android:id="@+id/button2"
+        android:layout_gravity="center_horizontal"
+        android:onClick="goToScanDevices"/>
+
+    <Button
+        android:layout_width="235dp"
+        android:layout_height="wrap_content"
+        android:text="@string/feedback_customization"
+        android:id="@+id/button3"
+        android:layout_gravity="center_horizontal"
+        android:onClick="goToAppConfiguration"/>
+
+    <Button
+        android:layout_width="235dp"
+        android:layout_height="wrap_content"
+        android:text="Questionnaire Test"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/button5"
+        android:onClick="testQuestionnaire"/>
+
+</LinearLayout>

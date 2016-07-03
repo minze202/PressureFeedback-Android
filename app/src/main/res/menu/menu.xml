@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="Priorität auswählen">
+
+    </item>
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/applicationDefaultP"
+            android:title="@string/applicationDefaultP"/>
+        <item android:id="@+id/maxP"
+            android:title="@string/maxP" />
+        <item android:id="@+id/highP"
+            android:title="@string/highP" />
+        <item android:id="@+id/defaultP"
+            android:title="@string/defaultP" />
+        <item android:id="@+id/lowP"
+            android:title="@string/lowP" />
+        <item android:id="@+id/minP"
+            android:title="@string/minP" />
+    </group>
+</menu>
