@@ -53,7 +53,7 @@ public class BluetoothLeService extends Service {
     private int mConnectionState = STATE_DISCONNECTED;
     private BluetoothGattCharacteristic readableCharacteristic;
 
-    private int mInterval=1000;
+    private int mInterval=200;
     private boolean taskRunning=false;
 
     private static final int STATE_DISCONNECTED = 0;
@@ -76,9 +76,13 @@ public class BluetoothLeService extends Service {
     public final static UUID UUID_HEART_RATE_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
 
-    private final LinkedList<ServiceAction> mQueue = new LinkedList<ServiceAction>();        // list of actions to execute
+    private final LinkedList<ServiceAction> mQueueCharacteristics = new LinkedList<ServiceAction>();        // list of actions to execute
+    private final LinkedList<ServiceAction> mQueueStrengthPattern = new LinkedList<ServiceAction>();
+
     private volatile ServiceAction mCurrentAction;
 
+    private String state="0";
+    
 
 
     public interface ServiceAction {
@@ -115,9 +119,39 @@ public class BluetoothLeService extends Service {
         };
     }
 
+    private BluetoothLeService.ServiceAction servicePressureWriteAction(final int pattern, final int strength) {
+        return new BluetoothLeService.ServiceAction() {
 
-    // Implements callback methods for GATT events that the app cares about.  For example,
-    // connection change and services discovered.
+            @Override
+            public boolean execute() {
+                List<BluetoothGattService> gattServices = getSupportedGattServices();
+                for (BluetoothGattService gattService : gattServices) {
+                    if (gattService.getUuid().equals(UUID.fromString(SampleGattAttributes.PRESSURE_SERVICE))) {
+
+
+                        BluetoothGattCharacteristic writableStrengthCharacteristic = gattService.getCharacteristic(UUID.fromString(SampleGattAttributes.WRITABLE_PRESSURE_STRENGTH_CHARACTERISTIC));
+                        byte[] value2 = new byte[1];
+                        value2[0] = (byte) (strength & 0xff);
+                        writableStrengthCharacteristic.setValue(value2);
+                        writeCharacteristic(writableStrengthCharacteristic);
+
+                        BluetoothGattCharacteristic writablePatternCharacteristic = gattService.getCharacteristic(UUID.fromString(SampleGattAttributes.WRITABLE_PRESSURE_PATTERN_CHARACTERISTIC));
+                        byte[] value1 = new byte[1];
+                        value1[0] = (byte) (pattern & 0xff);
+                        writablePatternCharacteristic.setValue(value1);
+                        writeCharacteristic(writablePatternCharacteristic);
+                        final BluetoothGattCharacteristic readableCharacteristic = gattService.getCharacteristic(UUID.fromString(SampleGattAttributes.READABLE_PRESSURE_CHARACTERISTIC));
+                        setReadableCharacteristic(readableCharacteristic);
+                        startWriteCharacteristicTask();
+                        break;
+                        }
+
+                }return false;
+            }
+        };
+    }
+
+
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
@@ -161,10 +195,20 @@ public class BluetoothLeService extends Service {
                 editor.putString(SampleGattAttributes.READABLE_PRESSURE_VALUE_CHARACTERISTIC,String.valueOf(characteristic.getValue()[0] & 0xff));
                 editor.commit();
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-                Log.i(TAG, "onCharacteristicRead: "+ String.valueOf(characteristic.getValue()[0] & 0xff));
-                if(String.valueOf(characteristic.getValue()[0] & 0xff).equals("0")){
-                    executeAll();
+                Log.i(TAG, "onCharacteristicRead: "+ String.valueOf(characteristic.getValue()[0] & 0xff)+"state: "+state);
+                if(state.equals("0")&& String.valueOf(characteristic.getValue()[0] & 0xff).equals("0")){
+                    state="1";
+                    executeWriteAction();
+                }else if(state.equals("1")&& String.valueOf(characteristic.getValue()[0] & 0xff).equals("1")) {
+                    state = "2";
+                    executeWriteAction();
+                }else if(state.equals("2")&& String.valueOf(characteristic.getValue()[0] & 0xff).equals("0")) {
+                    state = "0";
+                    if(mQueueCharacteristics.isEmpty()){
+                        stopWriteCharacteristicTask();
+                    }
                 }
+
             }
         }
 
@@ -190,9 +234,6 @@ public class BluetoothLeService extends Service {
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
 
-        // This is special handling for the Heart Rate Measurement profile.  Data parsing is
-        // carried out as per profile specifications:
-        // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
         if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
             int flag = characteristic.getProperties();
             int format = -1;
@@ -322,31 +363,34 @@ public class BluetoothLeService extends Service {
         }
         return null;
     }
-    Runnable mStatusChecker = new Runnable() {
+    Runnable writeCharacteristicRunnable = new Runnable() {
         @Override
         public void run() {
             try {
                 readCharacteristic(readableCharacteristic);
-                Log.i(TAG, "run: still running");
             } finally {
-                mHandler.postDelayed(mStatusChecker, mInterval);
+                mHandler.postDelayed(writeCharacteristicRunnable, mInterval);
             }
         }
     };
 
 
 
-    protected void executeAll() {
+
+    protected void executeWriteAction() {
         if (mCurrentAction == null) {
-            if (!mQueue.isEmpty()) {
-                final BluetoothLeService.ServiceAction action = mQueue.pop();
+            if (!mQueueCharacteristics.isEmpty()) {
+                final BluetoothLeService.ServiceAction action = mQueueCharacteristics.pop();
                 mCurrentAction = action;
                 action.execute();
                 mCurrentAction = null;
-            }else {
-                stopRunningTask();
             }
         }
+    }
+
+    protected void executeStrengthPatternAction() {
+        final BluetoothLeService.ServiceAction action = mQueueStrengthPattern.pop();
+        action.execute();
     }
 
     /**
@@ -398,8 +442,13 @@ public class BluetoothLeService extends Service {
         }
         //boolean bool = mBluetoothGatt.writeCharacteristic(characteristic);
         ServiceAction action = serviceWriteAction(characteristic);
-        mQueue.add(action);
+        mQueueCharacteristics.add(action);
         Log.i(TAG, "writeCharacteristic: added");
+    }
+
+    public void writePressureCharacteristic(int pattern, int strength) {
+        ServiceAction action = servicePressureWriteAction(pattern,strength);
+        mQueueStrengthPattern.add(action);
     }
 
     public void writeDescriptor(BluetoothGattDescriptor descriptor) {
@@ -445,16 +494,19 @@ public class BluetoothLeService extends Service {
         return mBluetoothGatt.getServices();
     }
 
-    public void startRunningTask(){
+    public void startWriteCharacteristicTask(){
         if(!taskRunning){
-            mStatusChecker.run();
+            writeCharacteristicRunnable.run();
             taskRunning=true;
         }
     }
 
-    public void stopRunningTask(){
-        mHandler.removeCallbacks(mStatusChecker);
+    public void stopWriteCharacteristicTask(){
+        mHandler.removeCallbacks(writeCharacteristicRunnable);
         taskRunning=false;
+        if(!mQueueStrengthPattern.isEmpty()){
+            executeStrengthPatternAction();
+        }
     }
 
 }

@@ -35,10 +35,10 @@ public class NotificationService extends NotificationListenerService {
     Context context;
     BluetoothLeService mBluetoothLeService;
     TestReceiver receiver;
-    long[][] vibrationPatterns= {{0},{0, 100, 1000, 300, 200, 100, 500, 200, 100},
+    long[][] vibrationPatterns = {{0}, {0, 100, 1000, 300, 200, 100, 500, 200, 100},
             {0, 250, 200, 250, 150, 150, 75, 150, 75, 150},
-            {0,150,50,75,50,75,50,150,50,75,50,75,50,300},
-            {0,100,200,100,100,100,100,100,200,100,500,100,225,100}};
+            {0, 150, 50, 75, 50, 75, 50, 150, 50, 75, 50, 75, 50, 300},
+            {0, 100, 200, 100, 100, 100, 100, 100, 200, 100, 500, 100, 225, 100}};
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
@@ -53,7 +53,6 @@ public class NotificationService extends NotificationListenerService {
     };
 
 
-
     @Override
     public void onCreate() {
 
@@ -63,22 +62,23 @@ public class NotificationService extends NotificationListenerService {
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
-        receiver=new TestReceiver();
+        receiver = new TestReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(getString(R.string.testFilter));
-        registerReceiver(receiver,filter);
+        registerReceiver(receiver, filter);
 
 
     }
+
     @Override
 
     public void onNotificationPosted(StatusBarNotification sbn) {
 
-        String pack =sbn.getPackageName();
+        String pack = sbn.getPackageName();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String mode = preferences.getString("appMode","sound");
-        Log.i("Mode",""+mode.equals("compression"));
+        String mode = preferences.getString("appMode", "sound");
+        Log.i("Mode", "" + mode.equals("compression"));
         switch (mode) {
             case "compression":
                 int pattern = preferences.getInt(pack + "pattern", 1);
@@ -100,16 +100,16 @@ public class NotificationService extends NotificationListenerService {
                 break;
         }
 
-        DataCollection.getInstance().addData(String.valueOf(sbn.getPostTime()),new DataSingleton(sbn.getNotification(),pack));
+        DataCollection.getInstance().addData(String.valueOf(sbn.getPostTime()), new DataSingleton(sbn.getNotification(), pack));
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
-        DataSingleton dataSingleton=DataCollection.getInstance().getDataForTheDay().get(String.valueOf(sbn.getPostTime()));
+        DataSingleton dataSingleton = DataCollection.getInstance().getDataForTheDay().get(String.valueOf(sbn.getPostTime()));
 
-        long responseTime=Calendar.getInstance().getTimeInMillis()-sbn.getPostTime();
+        long responseTime = Calendar.getInstance().getTimeInMillis() - sbn.getPostTime();
         dataSingleton.setResponseTime(responseTime);
-        if(responseTime<90000){
+        if (responseTime < 90000) {
             dataSingleton.setResponded(true);
         }
     }
@@ -120,8 +120,8 @@ public class NotificationService extends NotificationListenerService {
         Cursor cursor = manager.getCursor();
 
         while (cursor.moveToNext()) {
-            if(cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX).equals(title)){
-                String notificationUri = cursor.getString(RingtoneManager.URI_COLUMN_INDEX)+"/"+cursor.getString(RingtoneManager.ID_COLUMN_INDEX);
+            if (cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX).equals(title)) {
+                String notificationUri = cursor.getString(RingtoneManager.URI_COLUMN_INDEX) + "/" + cursor.getString(RingtoneManager.ID_COLUMN_INDEX);
                 return Uri.parse(notificationUri);
             }
         }
@@ -129,10 +129,10 @@ public class NotificationService extends NotificationListenerService {
 
     }
 
-    public boolean notificationsFlooding(StatusBarNotification sbn){
-        StatusBarNotification[] allActiveNotifications=getActiveNotifications();
-        for(StatusBarNotification statusBarNotification : allActiveNotifications){
-            if(sbn.getPackageName().equals(statusBarNotification.getPackageName())&& (sbn!=statusBarNotification) && ((sbn.getPostTime()-statusBarNotification.getPostTime())<10000)){
+    public boolean notificationsFlooding(StatusBarNotification sbn) {
+        StatusBarNotification[] allActiveNotifications = getActiveNotifications();
+        for (StatusBarNotification statusBarNotification : allActiveNotifications) {
+            if (sbn.getPackageName().equals(statusBarNotification.getPackageName()) && (sbn != statusBarNotification) && ((sbn.getPostTime() - statusBarNotification.getPostTime()) < 10000)) {
                 return true;
             }
         }
@@ -140,36 +140,20 @@ public class NotificationService extends NotificationListenerService {
     }
 
 
-    public void sendCompressionFeedback(int pattern, int strength){
-        List<BluetoothGattService> gattServices = mBluetoothLeService.getSupportedGattServices();
-        for (BluetoothGattService gattService : gattServices) {
-            if (gattService.getUuid().equals(UUID.fromString(SampleGattAttributes.PRESSURE_SERVICE))) {
-                final BluetoothGattCharacteristic writableStrengthCharacteristic = gattService.getCharacteristic(UUID.fromString(SampleGattAttributes.WRITABLE_PRESSURE_STRENGTH_CHARACTERISTIC));
-                byte[] value2 = new byte[1];
-                value2[0] = (byte) (strength + 1 & 0xff);
-                writableStrengthCharacteristic.setValue(value2);
-                mBluetoothLeService.writeCharacteristic(writableStrengthCharacteristic);
-
-                final BluetoothGattCharacteristic writablePatternCharacteristic = gattService.getCharacteristic(UUID.fromString(SampleGattAttributes.WRITABLE_PRESSURE_PATTERN_CHARACTERISTIC));
-                byte[] value1 = new byte[1];
-                value1[0] = (byte) (pattern & 0xff);
-                writablePatternCharacteristic.setValue(value1);
-                mBluetoothLeService.writeCharacteristic(writablePatternCharacteristic);
-
-                final BluetoothGattCharacteristic readableCharacteristic = gattService.getCharacteristic(UUID.fromString(SampleGattAttributes.READABLE_PRESSURE_CHARACTERISTIC));
-                mBluetoothLeService.setReadableCharacteristic(readableCharacteristic);
-                mBluetoothLeService.startRunningTask();
-
-
-                break;
+    public void sendCompressionFeedback(int pattern, int strength) {
+        if (pattern > 0) {
+            NumberPair[] samplePattern = SampleCompressionPatterns.sampleCompressionPatterns.get(strength).get(pattern - 1);
+            for (int i = 0; i < samplePattern.length; i++) {
+                mBluetoothLeService.writePressureCharacteristic(samplePattern[i].getX(), samplePattern[i].getY());
             }
+            mBluetoothLeService.executeStrengthPatternAction();
         }
     }
 
-    public void sendSoundFeedback(String audioTitle, int volume){
+    public void sendSoundFeedback(String audioTitle, int volume) {
         MediaPlayer mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        if(!audioTitle.equals("No Feedback")) {
+        if (!audioTitle.equals("No Feedback")) {
             try {
                 mediaPlayer.setVolume(volume / 100f, volume / 100f);
                 mediaPlayer.setDataSource(getApplicationContext(), getUri(audioTitle));
@@ -181,7 +165,7 @@ public class NotificationService extends NotificationListenerService {
         }
     }
 
-    public void sendVibrationFeedback(int patternChoice){
+    public void sendVibrationFeedback(int patternChoice) {
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         v.vibrate(vibrationPatterns[patternChoice], -1);
     }
@@ -192,11 +176,11 @@ public class NotificationService extends NotificationListenerService {
         public void onReceive(Context context, Intent intent) {
             if (intent.getStringExtra("mode").equals("vibration")) {
                 sendVibrationFeedback(intent.getIntExtra("patternChoice", 0));
-            }else if(intent.getStringExtra("mode").equals("sound")){
-                sendSoundFeedback(intent.getStringExtra("audioTitle"),intent.getIntExtra("volume",100));
-            }else if(intent.getStringExtra("mode").equals("compression")){
+            } else if (intent.getStringExtra("mode").equals("sound")) {
+                sendSoundFeedback(intent.getStringExtra("audioTitle"), intent.getIntExtra("volume", 100));
+            } else if (intent.getStringExtra("mode").equals("compression")) {
                 sendCompressionFeedback(intent.getIntExtra("pattern", 0), intent.getIntExtra("strength", 1));
-            }else if(intent.getStringExtra("mode").equals("remember")){
+            } else if (intent.getStringExtra("mode").equals("remember")) {
                 int mNotificationId = 001;
                 Intent notificationIntent = new Intent(context, QuestionnaireActivity.class);
                 PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
