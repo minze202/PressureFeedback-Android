@@ -73,34 +73,35 @@ public class NotificationService extends NotificationListenerService {
     @Override
 
     public void onNotificationPosted(StatusBarNotification sbn) {
+        if(!notificationsFlooding(sbn)) {
+            String pack = sbn.getPackageName();
 
-        String pack = sbn.getPackageName();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            String mode = preferences.getString("appMode", "sound");
+            Log.i("Mode", "" + mode.equals("compression"));
+            switch (mode) {
+                case "compression":
+                    int pattern = preferences.getInt(pack + "pattern", 1);
+                    int strength = preferences.getInt(pack + "strength", 0);
+                    sendCompressionFeedback(pattern, strength);
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String mode = preferences.getString("appMode", "sound");
-        Log.i("Mode", "" + mode.equals("compression"));
-        switch (mode) {
-            case "compression":
-                int pattern = preferences.getInt(pack + "pattern", 1);
-                int strength = preferences.getInt(pack + "strength", 0);
-                sendCompressionFeedback(pattern, strength);
+                    break;
+                case "sound":
 
-                break;
-            case "sound":
-
-                String audioTitle = preferences.getString(pack + "choice_s", "Standard");
-                int volume = preferences.getInt("volumeOfNotification", 100);
-                sendSoundFeedback(audioTitle, volume);
+                    String audioTitle = preferences.getString(pack + "choice_s", "Standard");
+                    int volume = preferences.getInt("volumeOfNotification", 100);
+                    sendSoundFeedback(audioTitle, volume);
 
 
-                break;
-            case "vibration":
-                int patternChoice = preferences.getInt(pack + "pattern_v", 1);
-                sendVibrationFeedback(patternChoice);
-                break;
+                    break;
+                case "vibration":
+                    int patternChoice = preferences.getInt(pack + "pattern_v", 1);
+                    sendVibrationFeedback(patternChoice);
+                    break;
+            }
+
+            DataCollection.getInstance().addData(String.valueOf(sbn.getPostTime()), new DataSingleton(sbn.getNotification(), pack));
         }
-
-        DataCollection.getInstance().addData(String.valueOf(sbn.getPostTime()), new DataSingleton(sbn.getNotification(), pack));
     }
 
     @Override
@@ -132,7 +133,7 @@ public class NotificationService extends NotificationListenerService {
     public boolean notificationsFlooding(StatusBarNotification sbn) {
         StatusBarNotification[] allActiveNotifications = getActiveNotifications();
         for (StatusBarNotification statusBarNotification : allActiveNotifications) {
-            if (sbn.getPackageName().equals(statusBarNotification.getPackageName()) && (sbn != statusBarNotification) && ((sbn.getPostTime() - statusBarNotification.getPostTime()) < 10000)) {
+            if (sbn.getPackageName().equals(statusBarNotification.getPackageName()) && (sbn.getPostTime() != statusBarNotification.getPostTime()) && ((sbn.getPostTime() - statusBarNotification.getPostTime()) < 1000)) {
                 return true;
             }
         }

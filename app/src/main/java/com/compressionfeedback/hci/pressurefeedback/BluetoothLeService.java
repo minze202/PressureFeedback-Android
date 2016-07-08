@@ -164,13 +164,16 @@ public class BluetoothLeService extends Service {
                 // Attempts to discover services after successful connection.
                 Log.i(TAG, "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
-                gatt.setCharacteristicNotification(gatt.getService(UUID.fromString(SampleGattAttributes.PRESSURE_SERVICE)).getCharacteristic(UUID.fromString(SampleGattAttributes.READABLE_PRESSURE_CHARACTERISTIC)),true);
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
                 broadcastUpdate(intentAction);
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor=sharedPreferences.edit();
+                editor.putString("appMode", "sound");
+                editor.commit();
             }
         }
 
@@ -190,12 +193,6 @@ public class BluetoothLeService extends Service {
                                          BluetoothGattCharacteristic characteristic,
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                SharedPreferences preferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                SharedPreferences.Editor editor=preferences.edit();
-                editor.putString(SampleGattAttributes.READABLE_PRESSURE_VALUE_CHARACTERISTIC,String.valueOf(characteristic.getValue()[0] & 0xff));
-                editor.commit();
-                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-                Log.i(TAG, "onCharacteristicRead: "+ String.valueOf(characteristic.getValue()[0] & 0xff)+"state: "+state);
                 if(state.equals("0")&& String.valueOf(characteristic.getValue()[0] & 0xff).equals("0")){
                     state="1";
                     executeWriteAction();
@@ -215,8 +212,6 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-            Log.i(TAG, "onCharacteristicChanged: something changed");
         }
 
         @Override
@@ -230,35 +225,6 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
     }
 
-    private void broadcastUpdate(final String action,
-                                 final BluetoothGattCharacteristic characteristic) {
-        final Intent intent = new Intent(action);
-
-        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
-            int flag = characteristic.getProperties();
-            int format = -1;
-            if ((flag & 0x01) != 0) {
-                format = BluetoothGattCharacteristic.FORMAT_UINT16;
-                Log.d(TAG, "Heart rate format UINT16.");
-            } else {
-                format = BluetoothGattCharacteristic.FORMAT_UINT8;
-                Log.d(TAG, "Heart rate format UINT8.");
-            }
-            final int heartRate = characteristic.getIntValue(format, 1);
-            Log.d(TAG, String.format("Received heart rate: %d", heartRate));
-            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
-        } else {
-            // For all other profiles, writes the data formatted in HEX.
-            final byte[] data = characteristic.getValue();
-            if (data != null && data.length > 0) {
-                final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for(byte byteChar : data)
-                    stringBuilder.append(String.format("%02X ", byteChar));
-                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-            }
-        }
-        sendBroadcast(intent);
-    }
 
     public class LocalBinder extends Binder {
         BluetoothLeService getService() {
@@ -451,16 +417,7 @@ public class BluetoothLeService extends Service {
         mQueueStrengthPattern.add(action);
     }
 
-    public void writeDescriptor(BluetoothGattDescriptor descriptor) {
-        mBluetoothGatt.writeDescriptor(descriptor);
-    }
 
-    /**
-     * Enables or disables notification on a give characteristic.
-     *
-     * @param characteristic Characteristic to act on.
-     * @param enabled If true, enable notification.  False otherwise.
-     */
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
