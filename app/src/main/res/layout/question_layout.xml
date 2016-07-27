@@ -7,58 +7,37 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="AppName"
-        android:id="@+id/notificationApp" />
+        android:text="Welches Pattern haben sie erkannt?"
+        android:textSize="@dimen/margin_large"
+        android:gravity="center"
+        android:id="@+id/textView2"
+        android:layout_gravity="center_horizontal" />
 
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/notification_title"
-        android:id="@+id/notificationTitle" />
+        android:text="A"
+        android:id="@+id/buttonA"
+        android:layout_gravity="center"/>
 
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/notification_content"
-        android:id="@+id/notificationContent" />
+        android:text="B"
+        android:id="@+id/buttonB"
+        android:layout_gravity="center"/>
 
-    <TextView
-        android:layout_width="match_parent"
+    <Button
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/question"
-        android:layout_weight="1"
-        android:id="@+id/question" />
+        android:text="C"
+        android:id="@+id/buttonC"
+        android:layout_gravity="center"/>
 
-    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
+    <Button
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/answers"
-        android:orientation="vertical">
-
-        <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/answer1"
-            android:id="@+id/answer1"
-            android:checked="false" />
-
-        <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="47dp"
-            android:text="@string/answer2"
-            android:id="@+id/answer2"
-            android:checked="false" />
-
-        <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/answer3"
-            android:id="@+id/answer3"
-            android:checked="false" />
-
-    </RadioGroup>
-
+        android:text="D"
+        android:id="@+id/buttonD"
+        android:layout_gravity="center"/>
 </LinearLayout>

@@ -3,6 +3,7 @@ package com.compressionfeedback.hci.pressurefeedback;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -10,12 +11,16 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.RadioButton;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -23,7 +28,8 @@ public class AppListActivity extends ListActivity{
     private List<ApplicationInfo> apps = new ArrayList<ApplicationInfo>();
     private List<ApplicationInfo> installedApps = new ArrayList<ApplicationInfo>();
     private List<Integer> priorityList = new ArrayList<Integer>();
-    private ApplicationAdapter listadapter = null;
+    private ApplicationAdapter listAdapter = null;
+    private RadioButton currentRadioButtonChecked;
     SharedPreferences savedPairValues;
     PackageManager pm;
 
@@ -46,6 +52,7 @@ public class AppListActivity extends ListActivity{
         }else{
             radioButton=(RadioButton)findViewById(R.id.soundRadio);
         }
+        currentRadioButtonChecked=radioButton;
         radioButton.setChecked(true);
 
     }
@@ -54,7 +61,7 @@ public class AppListActivity extends ListActivity{
     protected void onResume(){
         super.onResume();
         try {
-            listadapter.notifyDataSetChanged();
+            listAdapter.notifyDataSetChanged();
         }catch (Exception e){
 
         }
@@ -99,6 +106,13 @@ public class AppListActivity extends ListActivity{
             }
             editor.commit();
         }
+        Collections.sort(applist, new Comparator<ApplicationInfo>(){
+
+            @Override
+            public int compare(ApplicationInfo lhs, ApplicationInfo rhs) {
+                return lhs.loadLabel(pm).toString().compareTo(rhs.loadLabel(pm).toString());
+            }
+        });
 
         return applist;
     }
@@ -110,20 +124,40 @@ public class AppListActivity extends ListActivity{
         switch(view.getId()) {
             case R.id.vibrationRadio:
                 if (checked) {
+                    currentRadioButtonChecked=(RadioButton)findViewById(R.id.vibrationRadio);
                     editor.putString("appMode", "vibration");
                     editor.commit();
                     break;
                 }
             case R.id.soundRadio:
                 if (checked) {
+                    currentRadioButtonChecked=(RadioButton)findViewById(R.id.soundRadio);
                     editor.putString("appMode", "sound");
                     editor.commit();
                     break;
                 }
             case R.id.compressionRadio:
                 if (checked) {
-                    editor.putString("appMode", "compression");
-                    editor.commit();
+                    if(!savedPairValues.getString("connectedDeviceAdress","unknown").equals("unknown")){
+                        currentRadioButtonChecked=(RadioButton)findViewById(R.id.compressionRadio);
+                        editor.putString("appMode", "compression");
+                        editor.commit();
+                    }else{
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AppListActivity.this);
+
+                        alertDialogBuilder
+                                .setMessage("Zurzeit mit keinen kompatiblen Gerät verbunden!")
+                                .setCancelable(false)
+                                .setPositiveButton("Okay",new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
+                        currentRadioButtonChecked.setChecked(true);
+                    }
                     break;
                 }
         }
@@ -136,7 +170,7 @@ public class AppListActivity extends ListActivity{
         @Override
         protected Void doInBackground(Void... params) {
             installedApps = checkForLaunchIntent(pm.getInstalledApplications(PackageManager.GET_META_DATA));
-            listadapter = new ApplicationAdapter(AppListActivity.this,
+            listAdapter = new ApplicationAdapter(AppListActivity.this,
                     R.layout.snippet_list_row, installedApps);
 
             return null;
@@ -149,7 +183,7 @@ public class AppListActivity extends ListActivity{
 
         @Override
         protected void onPostExecute(Void result) {
-            setListAdapter(listadapter);
+            setListAdapter(listAdapter);
             progress.dismiss();
             super.onPostExecute(result);
         }

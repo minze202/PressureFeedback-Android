@@ -1,16 +1,12 @@
 package com.compressionfeedback.hci.pressurefeedback;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -27,7 +23,6 @@ public class SoundConfigurationActivity extends Activity {
     private TextView appName;
     private String appPack;
     private SeekBar volumeSlider;
-    private NotificationService notificationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -22,6 +22,19 @@ public class CompressionConfigurationActivity extends Activity{
     private SharedPreferences preferences;
     private TextView appName;
     private String appPack;
+    private DataCollection dataCollectionInstance;
+    private final ServiceConnection mDataCollectionServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            dataCollectionInstance = ((DataCollection.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            dataCollectionInstance = null;
+        }
+    };
 
 
 
@@ -50,15 +63,17 @@ public class CompressionConfigurationActivity extends Activity{
         spinner.setSelection(preferences.getInt(appPack+"pattern",1));
         spinnerStrength.setSelection(preferences.getInt(appPack+"strength",0));
 
-       // Intent intent2 = new Intent(this, NotificationService.class);
-       // bindService(intent2, mConnection, Context.BIND_AUTO_CREATE);
+        Intent dataCollectionServiceIntent = new Intent(this, DataCollection.class);
+        bindService(dataCollectionServiceIntent, mDataCollectionServiceConnection, BIND_AUTO_CREATE);
+
     }
 
     public void acceptChanges(View view) {
         SharedPreferences.Editor editor=preferences.edit();
         editor.putInt(appPack+"pattern",spinner.getSelectedItemPosition());
         editor.putInt(appPack+"strength",spinnerStrength.getSelectedItemPosition());
-        editor.commit();
+        editor.apply();
+        dataCollectionInstance.addAction("Kompressionsfeedback mit Pattern "+spinner.getSelectedItemPosition() +" und Stärke "+ spinnerStrength.getSelectedItem()+ " wurde für "+ appName.getText() + " eingestellt.");
         finish();
     }
 
@@ -71,7 +86,15 @@ public class CompressionConfigurationActivity extends Activity{
         i.putExtra("mode","compression");
         i.putExtra("pattern", spinner.getSelectedItemPosition());
         i.putExtra("strength",spinnerStrength.getSelectedItemPosition());
+        dataCollectionInstance.addAction("Kompressionsfeedback mit Pattern "+spinner.getSelectedItemPosition() +" und Stärke "+ spinnerStrength.getSelectedItem()+ " wurde getestet.");
         sendBroadcast(i);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mDataCollectionServiceConnection);
+        dataCollectionInstance = null;
     }
 
 

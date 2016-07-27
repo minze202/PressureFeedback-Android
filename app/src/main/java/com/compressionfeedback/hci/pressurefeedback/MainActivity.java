@@ -4,32 +4,63 @@ package com.compressionfeedback.hci.pressurefeedback;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.TimePickerDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.TimePicker;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.Random;
+
 
 public class MainActivity extends Activity{
 
-    private TextView alarmTimeText;
-    private  SharedPreferences preferences;
-    private long alarmTime=0;
+    private EditText participantsName;
+    private Button studyButton;
+    private DataCollection dataCollectionInstance;
+    private final ServiceConnection mDataCollectionServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            dataCollectionInstance = ((DataCollection.LocalBinder) service).getService();
+            Log.i("onResume: ", ""+dataCollectionInstance.isCollectingData());
+            if(!dataCollectionInstance.isCollectingData()){
+                participantsName.setEnabled(true);
+                participantsName.setFocusable(true);
+                studyButton.setText("Studie starten");
+            }else {
+                participantsName.setEnabled(false);
+                participantsName.setFocusable(false);
+                studyButton.setText("Studie stoppen");
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            dataCollectionInstance = null;
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu);
-        Context context =getApplicationContext();
-        alarmTimeText = (TextView) findViewById(R.id.alarmTime);
-        preferences= PreferenceManager.getDefaultSharedPreferences(context);
-        alarmTimeText.setText(preferences.getString("alarmTime","00:00"));
+        participantsName=(EditText)findViewById(R.id.participantsName);
+        Intent dataCollectionServiceIntent = new Intent(this, DataCollection.class);
+        bindService(dataCollectionServiceIntent, mDataCollectionServiceConnection, BIND_AUTO_CREATE);
+        startService(dataCollectionServiceIntent);
+
+        if (!FeedbackService.isNotificationAccessEnabled){
+            startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
+        }
+        studyButton=(Button)findViewById(R.id.studyButton);
     }
 
     public void goToAppConfiguration(View view) {
@@ -37,78 +68,56 @@ public class MainActivity extends Activity{
         startActivity(intent);
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        updateTextView();
-    }
-
-    public void updateTextView(){
-        TextView alarmReminder=(TextView)findViewById(R.id.alarmReminder);
-        if(alarmTime<System.currentTimeMillis()){
-            alarmReminder.setText(R.string.alarm_reminder_instruction);
-        }else {
-            alarmReminder.setText(R.string.alarm_reminder_text);
-        }
-    }
 
 
     public void goToScanDevices(View view) {
+        dataCollectionInstance.addAction("Es wird nach Geräten gescannt.");
         Intent intent=new Intent(this,DeviceScanActivity.class);
         startActivity(intent);
     }
 
-    public void setAlarm(int hour, int minute){
-        Calendar cal=Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY,hour);
-        cal.set(Calendar.MINUTE, minute);
-        cal.set(Calendar.SECOND,0);
-        if(cal.getTimeInMillis()<System.currentTimeMillis()){
+
+    public void startStudy(View view) {
+        if(!dataCollectionInstance.isCollectingData()){
+            dataCollectionInstance.startCollectingData(participantsName.getText().toString());
+            Toast.makeText(getApplicationContext(), "Studie fängt nun an.", Toast.LENGTH_SHORT).show();
+            participantsName.setEnabled(false);
+            participantsName.setFocusable(false);
+
+            studyButton.setText(R.string.stop_study);
+
+
+/*            Calendar cal=Calendar.getInstance();
             cal.add(Calendar.DAY_OF_WEEK,1);
+            Intent intent = new Intent(getString(R.string.testFilter));
+            intent.putExtra("study","day");
+            PendingIntent pintent = PendingIntent.getBroadcast(this, 0, intent, 0);
+            AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            alarm.set(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),pintent);*/
+        }else {
+            dataCollectionInstance.stopCollectingData();
+            participantsName.setEnabled(true);
+            participantsName.setFocusable(true);
+            studyButton.setText(R.string.start_study);
+            Toast.makeText(getApplicationContext(), "Studie wurde gestoppt", Toast.LENGTH_SHORT).show();
         }
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mDataCollectionServiceConnection);
+        dataCollectionInstance = null;
+    }
 
+    public void startStudyControlled(View view) {
+        Calendar cal=Calendar.getInstance();
         Intent intent = new Intent(getString(R.string.testFilter));
-        intent.putExtra("mode","remember");
+        intent.putExtra("study","randomFeedback");
+        Random random=new Random();
+        int randomNumber=random.nextInt(20000)+20000;
         PendingIntent pintent = PendingIntent.getBroadcast(this, 0, intent, 0);
-
         AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmTime=cal.getTimeInMillis();
-        alarm.set(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),pintent);
-    }
-
-    public void setAlarmTime(View view) {
-        Calendar cal = Calendar.getInstance();
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int minute = cal.get(Calendar.MINUTE);
-        TimePickerDialog mTimePicker;
-        mTimePicker = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                String minute=""+selectedMinute;
-                String hour = ""+selectedHour;
-                if(selectedMinute<10){
-                    minute="0"+selectedMinute;
-                }
-                if(selectedHour<10){
-                    hour="0"+selectedHour;
-                }
-                String time=hour+":"+minute;
-                alarmTimeText.setText(time);
-                SharedPreferences.Editor editor=preferences.edit();
-                editor.putString("alarmTime",time);
-                editor.commit();
-                setAlarm(selectedHour,selectedMinute);
-                updateTextView();
-            }
-        }, hour, minute, true);
-        mTimePicker.setTitle("Select Time");
-        mTimePicker.show();
-
-    }
-
-    public void testQuestionnaire(View view) {
-        Intent intent=new Intent(this, QuestionnaireActivity.class);
-        startActivity(intent);
+        alarm.set(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis()+randomNumber,pintent);
     }
 }

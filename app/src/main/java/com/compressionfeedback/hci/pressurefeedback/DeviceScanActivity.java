@@ -21,11 +21,16 @@ import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,10 +53,24 @@ public class DeviceScanActivity extends ListActivity {
     private BluetoothAdapter mBluetoothAdapter;
     private boolean mScanning;
     private Handler mHandler;
-
+    private String currentConnectedDevice;
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
+    private DataCollection dataCollectionInstance;
+
+    private final ServiceConnection mDataCollectionServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            dataCollectionInstance = ((DataCollection.LocalBinder) service).getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            dataCollectionInstance = null;
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,7 +78,7 @@ public class DeviceScanActivity extends ListActivity {
         try{
             getActionBar().setTitle(R.string.title_devices);
         }catch (Exception e){
-
+            Log.i("DeviceScanActivity", "Couldn't get ActionBar!");
         }
         mHandler = new Handler();
         setContentView(R.layout.device_list);
@@ -80,8 +100,10 @@ public class DeviceScanActivity extends ListActivity {
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
             finish();
-            return;
         }
+
+        Intent dataCollectionServiceIntent = new Intent(this, DataCollection.class);
+        bindService(dataCollectionServiceIntent, mDataCollectionServiceConnection, BIND_AUTO_CREATE);
 
     }
 
@@ -129,10 +151,18 @@ public class DeviceScanActivity extends ListActivity {
         }
 
         // Initializes list view adapter.
+        SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        currentConnectedDevice=sharedPreferences.getString("connectedDeviceAdress","unknown");
         mLeDeviceListAdapter = new LeDeviceListAdapter();
         setListAdapter(mLeDeviceListAdapter);
+        if(!currentConnectedDevice.equals("unknown")){
+            BluetoothDevice device= mBluetoothAdapter.getRemoteDevice(currentConnectedDevice);
+            if(device!=null){
+                mLeDeviceListAdapter.addDevice(mBluetoothAdapter.getRemoteDevice(currentConnectedDevice));
+            }
+        }
         scanLeDevice(true);
-        Intent notificationListener = new Intent(this,NotificationService.class);
+        Intent notificationListener = new Intent(this,FeedbackService.class);
         startService(notificationListener);
     }
 
@@ -152,6 +182,12 @@ public class DeviceScanActivity extends ListActivity {
         scanLeDevice(false);
         mLeDeviceListAdapter.clear();
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mDataCollectionServiceConnection);
+        dataCollectionInstance = null;
+    }
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
@@ -164,6 +200,7 @@ public class DeviceScanActivity extends ListActivity {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             mScanning = false;
         }
+        dataCollectionInstance.addAction(device.getName()+" wurde ausgewählt.");
         startActivity(intent);
     }
 
@@ -196,7 +233,7 @@ public class DeviceScanActivity extends ListActivity {
 
         public LeDeviceListAdapter() {
             super();
-            mLeDevices = new ArrayList<BluetoothDevice>();
+            mLeDevices = new ArrayList<>();
             mInflator = DeviceScanActivity.this.getLayoutInflater();
         }
 
@@ -250,6 +287,10 @@ public class DeviceScanActivity extends ListActivity {
             else
                 viewHolder.deviceName.setText(R.string.unknown_device);
             viewHolder.deviceAddress.setText(device.getAddress());
+            if(currentConnectedDevice.equals(device.getAddress())){
+                ImageView icon=(ImageView)view.findViewById(R.id.imageView);
+                icon.setImageResource(R.drawable.ic_important_devices_black_24dp);
+            }
 
             return view;
         }
