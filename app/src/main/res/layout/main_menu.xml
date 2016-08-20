@@ -41,11 +41,12 @@
         android:onClick="startStudy"/>
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="235dp"
         android:layout_height="wrap_content"
         android:text="@string/start_study_controlled"
-        android:id="@+id/button4"
+        android:id="@+id/startStudyControlledButton"
         android:layout_gravity="center_horizontal"
         android:onClick="startStudyControlled"/>
+
 
 </LinearLayout>

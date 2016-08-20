@@ -13,31 +13,101 @@
         android:id="@+id/textView2"
         android:layout_gravity="center_horizontal" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="A"
-        android:id="@+id/buttonA"
-        android:layout_gravity="center"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:weightSum="1">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="A"
+            android:id="@+id/buttonA"
+            android:layout_gravity="center"
+            android:onClick="chooseAnswer"/>
+
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="75dp"
+            android:src="@drawable/pattern1"
+            android:id="@+id/imageView2"
+            android:layout_weight="0.08" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:weightSum="1">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="B"
+            android:id="@+id/buttonB"
+            android:layout_gravity="center"
+            android:onClick="chooseAnswer"/>
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="75dp"
+            android:src="@drawable/pattern2"
+            android:id="@+id/imageView3"
+            android:layout_weight="0.08" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:weightSum="1">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="C"
+            android:id="@+id/buttonC"
+            android:layout_gravity="center"
+            android:onClick="chooseAnswer"/>
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="75dp"
+            android:src="@drawable/pattern3"
+            android:id="@+id/imageView4"
+            android:layout_weight="0.08" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:weightSum="1">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="D"
+            android:id="@+id/button"
+            android:layout_gravity="center"
+            android:onClick="chooseAnswer"/>
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="75dp"
+            android:src="@drawable/pattern5"
+            android:id="@+id/imageView6"
+            android:layout_weight="0.08" />
+    </LinearLayout>
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="179dp"
         android:layout_height="wrap_content"
-        android:text="B"
-        android:id="@+id/buttonB"
-        android:layout_gravity="center"/>
+        android:text="Nicht erkannt"
+        android:id="@+id/button5"
+        android:layout_gravity="center_horizontal"
+        android:onClick="chooseAnswer"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="C"
-        android:id="@+id/buttonC"
-        android:layout_gravity="center"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="D"
-        android:id="@+id/buttonD"
-        android:layout_gravity="center"/>
 </LinearLayout>

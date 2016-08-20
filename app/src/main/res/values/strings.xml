@@ -49,8 +49,8 @@
     <string name="save_answers">Antworten speichern</string>
     <string name="alarm_reminder_instruction">Stellen sie bitte den Zeitpunkt ein, in der Sie Zeit haben die Fragen zu beantworten. Zeitpunkt sollte am besten zwischen 20:00 und 00:00 sein.</string>
     <string name="alarm_reminder_text">Alarm ist zurzeit für diese Uhrzeit gestellt.</string>
-    <string name="vibration">Vibration</string>
-    <string name="sound">Sound</string>
+    <string name="vibration">Vibration(Arm)</string>
+    <string name="sound">Vibration(Handy)</string>
     <string name="compression">Kompression</string>
     <string name="back_main">Zurück ins Hauptmenü</string>
     <string name="accept">Übernehmen</string>
@@ -77,8 +77,6 @@
         <item>Pattern 2</item>
         <item>Pattern 3</item>
         <item>Pattern 4</item>
-        <item>Pattern 5</item>
-        <item>Zufällig</item>
     </string-array>
 
     <string-array name="patterns_v_array">

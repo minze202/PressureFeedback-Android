@@ -40,6 +40,6 @@ public class DataSingleton {
     }
 
     public void setResponseTime(long responseTime) {
-        this.responseTime = responseTime;
+        this.responseTime = responseTime/1000;
     }
 }

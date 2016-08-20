@@ -24,6 +24,7 @@ public class MainActivity extends Activity{
 
     private EditText participantsName;
     private Button studyButton;
+    private Button labStudyButton;
     private DataCollection dataCollectionInstance;
     private final ServiceConnection mDataCollectionServiceConnection = new ServiceConnection() {
 
@@ -34,10 +35,14 @@ public class MainActivity extends Activity{
             if(!dataCollectionInstance.isCollectingData()){
                 participantsName.setEnabled(true);
                 participantsName.setFocusable(true);
+                labStudyButton.setEnabled(true);
+                labStudyButton.setFocusable(true);
                 studyButton.setText("Studie starten");
             }else {
                 participantsName.setEnabled(false);
                 participantsName.setFocusable(false);
+                labStudyButton.setEnabled(false);
+                labStudyButton.setFocusable(false);
                 studyButton.setText("Studie stoppen");
             }
         }
@@ -61,6 +66,7 @@ public class MainActivity extends Activity{
             startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"));
         }
         studyButton=(Button)findViewById(R.id.studyButton);
+        labStudyButton=(Button)findViewById(R.id.startStudyControlledButton);
     }
 
     public void goToAppConfiguration(View view) {
@@ -86,14 +92,6 @@ public class MainActivity extends Activity{
 
             studyButton.setText(R.string.stop_study);
 
-
-/*            Calendar cal=Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_WEEK,1);
-            Intent intent = new Intent(getString(R.string.testFilter));
-            intent.putExtra("study","day");
-            PendingIntent pintent = PendingIntent.getBroadcast(this, 0, intent, 0);
-            AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            alarm.set(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis(),pintent);*/
         }else {
             dataCollectionInstance.stopCollectingData();
             participantsName.setEnabled(true);
@@ -111,13 +109,20 @@ public class MainActivity extends Activity{
     }
 
     public void startStudyControlled(View view) {
-        Calendar cal=Calendar.getInstance();
-        Intent intent = new Intent(getString(R.string.testFilter));
-        intent.putExtra("study","randomFeedback");
-        Random random=new Random();
-        int randomNumber=random.nextInt(20000)+20000;
-        PendingIntent pintent = PendingIntent.getBroadcast(this, 0, intent, 0);
-        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarm.set(AlarmManager.RTC_WAKEUP,cal.getTimeInMillis()+randomNumber,pintent);
+        if(!dataCollectionInstance.isCollectingData()){
+            dataCollectionInstance.startLabCollectingData(participantsName.getText().toString());
+            participantsName.setEnabled(false);
+            participantsName.setFocusable(false);
+            labStudyButton.setEnabled(false);
+            labStudyButton.setFocusable(false);
+            studyButton.setText(R.string.stop_study);
+            Toast.makeText(getApplicationContext(), "Laborstudie wurde gestartet", Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    public void changeScenario(View view) {
+        dataCollectionInstance.changeScenario();
+        Toast.makeText(getApplicationContext(), "Derzeitiges Szenario: "+ dataCollectionInstance.getScenario(), Toast.LENGTH_SHORT).show();
     }
 }
