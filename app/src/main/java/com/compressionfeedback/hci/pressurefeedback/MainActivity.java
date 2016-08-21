@@ -120,9 +120,4 @@ public class MainActivity extends Activity{
 
         }
     }
-
-    public void changeScenario(View view) {
-        dataCollectionInstance.changeScenario();
-        Toast.makeText(getApplicationContext(), "Derzeitiges Szenario: "+ dataCollectionInstance.getScenario(), Toast.LENGTH_SHORT).show();
-    }
 }
