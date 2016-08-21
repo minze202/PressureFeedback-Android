@@ -11,13 +11,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class VibrationConfigurationActivity extends Activity {
 
     private Spinner spinner;
     private SharedPreferences preferences;
     private TextView appName;
     private String appPack;
-
+    private ArrayList<String> appPacks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,17 +35,33 @@ public class VibrationConfigurationActivity extends Activity {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         Intent intent=getIntent();
+        appPacks=intent.getStringArrayListExtra("ApplicationPacks");
         appName = (TextView)findViewById(R.id.app_name_v);
         appName.setText(intent.getStringExtra("ApplicationName"));
-        appPack = intent.getStringExtra("ApplicationPack");
-        spinner.setSelection(preferences.getInt(appPack+"pattern_v",1));
+        if(appPacks==null){
+            appPack = intent.getStringExtra("ApplicationPack");
+            spinner.setSelection(preferences.getInt(appPack+"pattern_v",1));
+        }else {
+            spinner.setSelection(preferences.getInt(appName.getText().toString()+"pattern_v",1));
+        }
+
 
     }
 
     public void acceptChanges(View view) {
         SharedPreferences.Editor editor=preferences.edit();
-        editor.putInt(appPack+"pattern_v",spinner.getSelectedItemPosition());
-        editor.apply();
+        if(appPacks==null){
+            editor.putInt(appPack+"pattern_v",spinner.getSelectedItemPosition());
+            editor.apply();
+        }else {
+            editor.putInt(appName.getText().toString()+"pattern_v",spinner.getSelectedItemPosition());
+            editor.apply();
+            for(String appPackage:appPacks){
+                editor.putInt(appPackage+"pattern_v",spinner.getSelectedItemPosition());
+                editor.apply();
+            }
+        }
+
         finish();
     }
 

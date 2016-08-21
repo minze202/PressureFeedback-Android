@@ -47,7 +47,6 @@ import java.util.Set;
 
 
 public class AppListActivity extends Activity {
-    private List<ApplicationInfo> apps = new ArrayList<ApplicationInfo>();
     private List<ApplicationInfo> installedApps = new ArrayList<ApplicationInfo>();
     private List<String> group=new ArrayList<>();
     private List<Integer> priorityList = new ArrayList<Integer>();
@@ -69,7 +68,6 @@ public class AppListActivity extends Activity {
         setContentView(R.layout.app_list);
         expandableListView=(ExpandableListView)findViewById(R.id.expand_list);
         pm = getPackageManager();
-        apps = pm.getInstalledApplications(0);
         new LoadApplications().execute();
 
     }
@@ -223,7 +221,7 @@ public class AppListActivity extends Activity {
                                             int childPosition, long id) {
                     ApplicationInfo app = appList.get(group.get(groupPosition)).get(childPosition);
                     if(!addAppsMode) {
-                        String mode = savedPairValues.getString("appMode", "compression");
+                        String mode = savedPairValues.getString("appMode", "sound");
                         Intent intent;
                         if (mode == "vibration") {
                             intent = new Intent(getApplicationContext(), VibrationConfigurationActivity.class);
@@ -517,16 +515,29 @@ public class AppListActivity extends Activity {
     }
 
     public void configureCategory(View view){
-        AlertDialog.Builder builderThird = new AlertDialog.Builder(this);
-        builderThird.setMessage("BEEEEE");
-        builderThird.setNegativeButton("Abbruch", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+        String mode = savedPairValues.getString("appMode", "sound");
+        Intent intent;
+        if (mode == "vibration") {
+            intent = new Intent(getApplicationContext(), VibrationConfigurationActivity.class);
+        } else if (mode == "compression") {
+            intent = new Intent(getApplicationContext(), CompressionConfigurationActivity.class);
+        } else {
+            intent = new Intent(getApplicationContext(), SoundConfigurationActivity.class);
+        }
+        String category="";
+        for(View groupView:listAdapter.getGroupViews()){
+            if(groupView.findViewById(R.id.configure_icon)==view){
+                category=((TextView)groupView.findViewById(R.id.lblListHeader)).getText().toString();
             }
-        });
-        AlertDialog dialogThird=builderThird.create();
-        dialogThird.show();
+
+        }
+        ArrayList<String> appsInThisCategory=new ArrayList<>();
+        for(ApplicationInfo app:appList.get(category)){
+            appsInThisCategory.add(app.packageName);
+        }
+        intent.putExtra("ApplicationName", category);
+        intent.putExtra("ApplicationPacks", appsInThisCategory);
+        startActivity(intent);
     }
 
     private class LoadApplications extends AsyncTask<Void, Void, Void> {

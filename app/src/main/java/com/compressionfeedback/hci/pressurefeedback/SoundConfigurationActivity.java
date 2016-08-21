@@ -17,12 +17,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class SoundConfigurationActivity extends Activity {
-    ArrayList<String> sound_array=new ArrayList<String>();
     private Spinner spinner;
     private SharedPreferences preferences;
     private TextView appName;
     private String appPack;
-    private SeekBar volumeSlider;
+    private ArrayList<String> appPacks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +40,13 @@ public class SoundConfigurationActivity extends Activity {
         Intent intent=getIntent();
         appName = (TextView)findViewById(R.id.app_name_s);
         appName.setText(intent.getStringExtra("ApplicationName"));
-        appPack = intent.getStringExtra("ApplicationPack");
-        spinner.setSelection(preferences.getInt(appPack+"choice_s_int",1));
+        appPacks=intent.getStringArrayListExtra("ApplicationPacks");
+        if(appPacks==null){
+            appPack = intent.getStringExtra("ApplicationPack");
+            spinner.setSelection(preferences.getInt(appPack+"choice_s_int",1));
+        }else {
+            spinner.setSelection(preferences.getInt(appName.getText().toString()+"choice_s_int",1));
+        }
 
 
        // Intent intent2 = new Intent(this, NotificationService.class);
@@ -51,8 +55,18 @@ public class SoundConfigurationActivity extends Activity {
 
     public void acceptChanges(View view) {
         SharedPreferences.Editor editor=preferences.edit();
-        editor.putInt(appPack+"choice_s_int",spinner.getSelectedItemPosition());
-        editor.commit();
+        if(appPacks==null){
+            editor.putInt(appPack+"choice_s_int",spinner.getSelectedItemPosition());
+            editor.apply();
+        }else {
+            editor.putInt(appName.getText().toString()+"choice_s_int",spinner.getSelectedItemPosition());
+            editor.apply();
+            for(String appPackage:appPacks){
+                editor.putInt(appPackage+"choice_s_int",spinner.getSelectedItemPosition());
+                editor.apply();
+            }
+        }
+
         finish();
     }
 
