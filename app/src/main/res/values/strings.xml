@@ -69,6 +69,10 @@
     <string name="start_study">Studie starten</string>
     <string name="stop_study">Studie stoppen</string>
     <string name="start_study_controlled">Laborstudie starten</string>
+    <string name="app_categories">appCategories</string>
+    <string name="add_category">Kategorie hinzufügen</string>
+    <string name="delete_category">Kategorie löschen</string>
+    <string name="sort_apps">Apps automatisch sortieren</string>
 
 
     <string-array name="patterns_array">
