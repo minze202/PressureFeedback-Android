@@ -3,6 +3,7 @@ package com.compressionfeedback.hci.pressurefeedback;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -10,12 +11,18 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.SeekBar;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -23,7 +30,11 @@ public class AppListActivity extends ListActivity{
     private List<ApplicationInfo> apps = new ArrayList<ApplicationInfo>();
     private List<ApplicationInfo> installedApps = new ArrayList<ApplicationInfo>();
     private List<Integer> priorityList = new ArrayList<Integer>();
-    private ApplicationAdapter listadapter = null;
+    private ApplicationAdapter listAdapter = null;
+    private RadioButton currentRadioButtonChecked;
+    private Button acceptStrength;
+    private Button testStrength;
+    private SeekBar strengthSlider;
     SharedPreferences savedPairValues;
     PackageManager pm;
 
@@ -37,24 +48,50 @@ public class AppListActivity extends ListActivity{
         pm = getPackageManager();
         apps = pm.getInstalledApplications(0);
         new LoadApplications().execute();
-        String mode=savedPairValues.getString("appMode", "sound");
-        RadioButton radioButton;
-        if(mode == "vibration"){
-            radioButton=(RadioButton)findViewById(R.id.vibrationRadio);
-        }else if(mode == "compression"){
-            radioButton=(RadioButton)findViewById(R.id.compressionRadio);
-        }else{
-            radioButton=(RadioButton)findViewById(R.id.soundRadio);
-        }
-        radioButton.setChecked(true);
+        strengthSlider=(SeekBar)findViewById(R.id.strength_slider);
+        acceptStrength=(Button)findViewById(R.id.accept_strength);
+        testStrength=(Button)findViewById(R.id.test_strength);
 
     }
 
     @Override
     protected void onResume(){
         super.onResume();
+        String mode=savedPairValues.getString("appMode", "sound");
+        RadioButton radioButton;
+        if(mode == "vibration"){
+            int strength=savedPairValues.getInt("vibration_strength",100);
+            strengthSlider.setEnabled(true);
+            strengthSlider.setFocusable(true);
+            strengthSlider.setProgress(strength);
+            acceptStrength.setEnabled(true);
+            acceptStrength.setFocusable(true);
+            testStrength.setEnabled(true);
+            testStrength.setFocusable(true);
+            radioButton=(RadioButton)findViewById(R.id.vibrationRadio);
+        }else if(mode == "compression"){
+            radioButton=(RadioButton)findViewById(R.id.compressionRadio);
+            int strength=savedPairValues.getInt("compression_strength",100);
+            strengthSlider.setEnabled(true);
+            strengthSlider.setFocusable(true);
+            strengthSlider.setProgress(strength);
+            acceptStrength.setEnabled(true);
+            acceptStrength.setFocusable(true);
+            testStrength.setEnabled(true);
+            testStrength.setFocusable(true);
+        }else{
+            radioButton=(RadioButton)findViewById(R.id.soundRadio);
+            strengthSlider.setEnabled(false);
+            strengthSlider.setFocusable(false);
+            acceptStrength.setEnabled(false);
+            acceptStrength.setFocusable(false);
+            testStrength.setEnabled(false);
+            testStrength.setFocusable(false);
+        }
+        currentRadioButtonChecked=radioButton;
+        radioButton.setChecked(true);
         try {
-            listadapter.notifyDataSetChanged();
+            listAdapter.notifyDataSetChanged();
         }catch (Exception e){
 
         }
@@ -97,8 +134,15 @@ public class AppListActivity extends ListActivity{
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            editor.commit();
+            editor.apply();
         }
+        Collections.sort(applist, new Comparator<ApplicationInfo>(){
+
+            @Override
+            public int compare(ApplicationInfo lhs, ApplicationInfo rhs) {
+                return lhs.loadLabel(pm).toString().compareTo(rhs.loadLabel(pm).toString());
+            }
+        });
 
         return applist;
     }
@@ -110,22 +154,114 @@ public class AppListActivity extends ListActivity{
         switch(view.getId()) {
             case R.id.vibrationRadio:
                 if (checked) {
-                    editor.putString("appMode", "vibration");
-                    editor.commit();
+                    if(!savedPairValues.getString("connectedDeviceAdress","unknown").equals("unknown")) {
+                        currentRadioButtonChecked = (RadioButton) findViewById(R.id.vibrationRadio);
+                        int strength = savedPairValues.getInt("compression_strength", 100);
+                        strengthSlider.setEnabled(true);
+                        strengthSlider.setFocusable(true);
+                        strengthSlider.setProgress(strength);
+                        acceptStrength.setEnabled(true);
+                        acceptStrength.setFocusable(true);
+                        testStrength.setEnabled(true);
+                        testStrength.setFocusable(true);
+                        editor.putString("appMode", "vibration");
+                        editor.apply();
+                    }else {
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AppListActivity.this);
+
+                        alertDialogBuilder
+                                .setMessage("Zurzeit mit keinen kompatiblen Gerät verbunden!")
+                                .setCancelable(false)
+                                .setPositiveButton("Okay",new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
+                        currentRadioButtonChecked.setChecked(true);
+                    }
                     break;
                 }
             case R.id.soundRadio:
                 if (checked) {
+                    currentRadioButtonChecked=(RadioButton)findViewById(R.id.soundRadio);
+                    strengthSlider.setEnabled(false);
+                    strengthSlider.setFocusable(false);
+                    acceptStrength.setEnabled(false);
+                    acceptStrength.setFocusable(false);
+                    testStrength.setEnabled(false);
+                    testStrength.setFocusable(false);
                     editor.putString("appMode", "sound");
-                    editor.commit();
+                    editor.apply();
                     break;
                 }
             case R.id.compressionRadio:
                 if (checked) {
-                    editor.putString("appMode", "compression");
-                    editor.commit();
+                    if(!savedPairValues.getString("connectedDeviceAdress","unknown").equals("unknown")){
+                        currentRadioButtonChecked=(RadioButton)findViewById(R.id.compressionRadio);
+                        int strength=savedPairValues.getInt("compression_strength",100);
+                        strengthSlider.setEnabled(true);
+                        strengthSlider.setFocusable(true);
+                        strengthSlider.setProgress(strength);
+                        acceptStrength.setEnabled(true);
+                        acceptStrength.setFocusable(true);
+                        testStrength.setEnabled(true);
+                        testStrength.setFocusable(true);
+                        editor.putString("appMode", "compression");
+                        editor.apply();
+                    }else{
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AppListActivity.this);
+
+                        alertDialogBuilder
+                                .setMessage("Zurzeit mit keinen kompatiblen Gerät verbunden!")
+                                .setCancelable(false)
+                                .setPositiveButton("Okay",new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+
+                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        alertDialog.show();
+                        currentRadioButtonChecked.setChecked(true);
+                    }
                     break;
                 }
+        }
+    }
+
+    public void acceptStrength(View view) {
+        SharedPreferences.Editor editor=savedPairValues.edit();
+        if(savedPairValues.getString("appMode", "sound").equals("compression")){
+            editor.putInt("compression_strength",strengthSlider.getProgress());
+            editor.apply();
+            Intent i = new  Intent(getString(R.string.testFilter));
+            i.putExtra("mode","accept_compression_strength");
+            i.putExtra("strength",strengthSlider.getProgress());
+            sendBroadcast(i);
+        }else if(savedPairValues.getString("appMode", "sound").equals("vibration")){
+            editor.putInt("compression_strength",strengthSlider.getProgress());
+            editor.apply();
+            Intent i = new  Intent(getString(R.string.testFilter));
+            i.putExtra("mode","accept_vibration_strength");
+            i.putExtra("strength",strengthSlider.getProgress());
+            sendBroadcast(i);
+        }
+    }
+
+    public void testStrength(View view) {
+        if(savedPairValues.getString("appMode", "sound").equals("compression")){
+            Intent i = new  Intent(getString(R.string.testFilter));
+            i.putExtra("mode","test_compression_strength");
+            i.putExtra("strength",strengthSlider.getProgress());
+            sendBroadcast(i);
+        }else if(savedPairValues.getString("appMode", "sound").equals("vibration")){
+            Intent i = new  Intent(getString(R.string.testFilter));
+            i.putExtra("mode","test_vibration_strength");
+            i.putExtra("strength",strengthSlider.getProgress());
+            sendBroadcast(i);
         }
     }
 
@@ -136,7 +272,7 @@ public class AppListActivity extends ListActivity{
         @Override
         protected Void doInBackground(Void... params) {
             installedApps = checkForLaunchIntent(pm.getInstalledApplications(PackageManager.GET_META_DATA));
-            listadapter = new ApplicationAdapter(AppListActivity.this,
+            listAdapter = new ApplicationAdapter(AppListActivity.this,
                     R.layout.snippet_list_row, installedApps);
 
             return null;
@@ -149,7 +285,7 @@ public class AppListActivity extends ListActivity{
 
         @Override
         protected void onPostExecute(Void result) {
-            setListAdapter(listadapter);
+            setListAdapter(listAdapter);
             progress.dismiss();
             super.onPostExecute(result);
         }
@@ -167,7 +303,4 @@ public class AppListActivity extends ListActivity{
         }
     }
 
-    public void go_to_connection(View view){
-        finish();
-    }
 }

@@ -1,13 +1,10 @@
 package com.compressionfeedback.hci.pressurefeedback;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -46,7 +43,7 @@ public class VibrationConfigurationActivity extends Activity {
     public void acceptChanges(View view) {
         SharedPreferences.Editor editor=preferences.edit();
         editor.putInt(appPack+"pattern_v",spinner.getSelectedItemPosition());
-        editor.commit();
+        editor.apply();
         finish();
     }
 

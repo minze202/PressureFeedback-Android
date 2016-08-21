@@ -14,17 +14,32 @@
      limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+              android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content">
+              android:layout_height="wrap_content"
+    android:weightSum="1">
 
 
-    <TextView android:id="@+id/device_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="24dp"/>
-    <TextView android:id="@+id/device_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="12dp"/>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="309dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1.21">
+
+        <TextView android:id="@+id/device_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"/>
+
+        <TextView android:id="@+id/device_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12dp"/>
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="54dp"
+        android:layout_height="match_parent"
+        android:id="@+id/imageView" />
+
 </LinearLayout>

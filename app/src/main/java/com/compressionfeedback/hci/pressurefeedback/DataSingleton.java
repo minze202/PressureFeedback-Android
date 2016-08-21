@@ -7,17 +7,11 @@ public class DataSingleton {
 
     private Notification notification;
 
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
+    private boolean feedbackSent;
+
 
     private long responseTime=-1;
-    private boolean responded=false;
-    private String reason="";
 
-    public void setAppPackage(String appPackage) {
-        this.appPackage = appPackage;
-    }
 
     public String getAppPackage() {
 
@@ -35,17 +29,17 @@ public class DataSingleton {
         return notification;
     }
 
-    public DataSingleton(Notification notification, String appPackage){
+    public DataSingleton(Notification notification, String appPackage, boolean feedbackSent){
         this.notification=notification;
         this.appPackage=appPackage;
+        this.feedbackSent=feedbackSent;
 
+    }
+    public boolean isFeedbackSent() {
+        return feedbackSent;
     }
 
     public void setResponseTime(long responseTime) {
-        this.responseTime = responseTime;
-    }
-
-    public void setResponded(boolean responded) {
-        this.responded = responded;
+        this.responseTime = responseTime/1000;
     }
 }

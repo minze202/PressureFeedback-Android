@@ -32,7 +32,7 @@
     <!-- Menu items -->
     <string name="menu_connect">Verbinden</string>
     <string name="menu_connecting">Am Verbinden</string>
-    <string name="menu_disconnect">Getrennt</string>
+    <string name="menu_disconnect">Trennen</string>
     <string name="menu_scan">Scan</string>
     <string name="menu_stop">Stop</string>
 
@@ -49,8 +49,8 @@
     <string name="save_answers">Antworten speichern</string>
     <string name="alarm_reminder_instruction">Stellen sie bitte den Zeitpunkt ein, in der Sie Zeit haben die Fragen zu beantworten. Zeitpunkt sollte am besten zwischen 20:00 und 00:00 sein.</string>
     <string name="alarm_reminder_text">Alarm ist zurzeit für diese Uhrzeit gestellt.</string>
-    <string name="vibration">Vibration</string>
-    <string name="sound">Sound</string>
+    <string name="vibration">Vibration(Arm)</string>
+    <string name="sound">Vibration(Handy)</string>
     <string name="compression">Kompression</string>
     <string name="back_main">Zurück ins Hauptmenü</string>
     <string name="accept">Übernehmen</string>
@@ -66,6 +66,9 @@
     <string name="answer1">Ich war zu beschäftigt</string>
     <string name="answer2">Ich habe die Notification nicht bemerkt.</string>
     <string name="answer3">Die Notification war nicht wichtig genug um zeitnah darauf zu reagieren.</string>
+    <string name="start_study">Studie starten</string>
+    <string name="stop_study">Studie stoppen</string>
+    <string name="start_study_controlled">Laborstudie starten</string>
 
 
     <string-array name="patterns_array">

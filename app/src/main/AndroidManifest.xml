@@ -14,7 +14,10 @@ PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE) -->
 <uses-permission android:name="android.permission.BLUETOOTH"/>
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 <uses-permission android:name="android.permission.VIBRATE"/>
+<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
 
 <application android:label="@string/app_name"
     android:icon="@drawable/ic_launcher"
@@ -28,16 +31,16 @@ PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE) -->
     </activity>
     <activity android:name=".DeviceScanActivity"
         android:theme="@android:style/Theme.Holo.Light"/>
-    <activity android:name=".QuestionnaireActivity" />
     <activity android:name=".DeviceControlActivity"
         android:theme="@android:style/Theme.Holo.Light"/>
     <activity android:name=".AppListActivity"></activity>
     <activity android:name=".CompressionConfigurationActivity"></activity>
     <activity android:name=".SoundConfigurationActivity"></activity>
     <activity android:name=".VibrationConfigurationActivity"></activity>
+    <activity android:name=".QuestionActivity"></activity>
 
     <service android:name=".BluetoothLeService" android:enabled="true"/>
-    <service android:name=".NotificationService"
+    <service android:name=".FeedbackService"
         android:label="@string/app_name"
         android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
 
@@ -49,6 +52,9 @@ PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE) -->
         </intent-filter>
 
     </service>
+    <service android:name=".DataCollection"></service>
+
+
 </application>
 
 </manifest>

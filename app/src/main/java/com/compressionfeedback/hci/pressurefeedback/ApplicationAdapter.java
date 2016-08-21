@@ -65,7 +65,7 @@ public class ApplicationAdapter extends ArrayAdapter<ApplicationInfo> {
 
             appName.setText(data.loadLabel(packageManager));
             Resources resource = context.getResources();
-            patternChoice.setText(resource.getStringArray(R.array.patterns_array)[pattern]+" ");
+            patternChoice.setText(resource.getStringArray(R.array.patterns_array)[pattern]);
             strengthChoice.setText(resource.getStringArray(R.array.strength_array)[strength]);
             iconview.setImageDrawable(data.loadIcon(packageManager));
         }

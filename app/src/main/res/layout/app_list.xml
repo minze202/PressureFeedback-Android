@@ -39,19 +39,38 @@
         </RadioGroup>
     </LinearLayout>
 
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:id="@+id/strength_slider" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stärke übernehmen"
+            android:id="@+id/accept_strength"
+            android:onClick="acceptStrength"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stärke testen"
+            android:id="@+id/test_strength"
+            android:layout_gravity="center_horizontal"
+            android:onClick="testStrength"/>
+    </LinearLayout>
+
     <ListView
         android:id="@android:id/list"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="0.8"
         />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/back_main"
-        android:id="@+id/button"
-        android:onClick="go_to_connection"
-        android:layout_gravity="bottom" />
 
 </LinearLayout>

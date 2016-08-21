@@ -7,58 +7,107 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="AppName"
-        android:id="@+id/notificationApp" />
+        android:text="Welches Pattern haben sie erkannt?"
+        android:textSize="@dimen/margin_large"
+        android:gravity="center"
+        android:id="@+id/textView2"
+        android:layout_gravity="center_horizontal" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/notification_title"
-        android:id="@+id/notificationTitle" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/notification_content"
-        android:id="@+id/notificationContent" />
-
-    <TextView
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/question"
-        android:layout_weight="1"
-        android:id="@+id/question" />
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:weightSum="1">
 
-    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/answers"
-        android:orientation="vertical">
-
-        <RadioButton
-            android:layout_width="match_parent"
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/answer1"
-            android:id="@+id/answer1"
-            android:checked="false" />
+            android:text="A"
+            android:id="@+id/buttonA"
+            android:layout_gravity="center"
+            android:onClick="chooseAnswer"/>
 
-        <RadioButton
-            android:layout_width="match_parent"
-            android:layout_height="47dp"
-            android:text="@string/answer2"
-            android:id="@+id/answer2"
-            android:checked="false" />
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="75dp"
+            android:src="@drawable/pattern1"
+            android:id="@+id/imageView2"
+            android:layout_weight="0.08" />
+    </LinearLayout>
 
-        <RadioButton
-            android:layout_width="match_parent"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:weightSum="1">
+
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/answer3"
-            android:id="@+id/answer3"
-            android:checked="false" />
+            android:text="B"
+            android:id="@+id/buttonB"
+            android:layout_gravity="center"
+            android:onClick="chooseAnswer"/>
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="75dp"
+            android:src="@drawable/pattern2"
+            android:id="@+id/imageView3"
+            android:layout_weight="0.08" />
+    </LinearLayout>
 
-    </RadioGroup>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:weightSum="1">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="C"
+            android:id="@+id/buttonC"
+            android:layout_gravity="center"
+            android:onClick="chooseAnswer"/>
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="75dp"
+            android:src="@drawable/pattern3"
+            android:id="@+id/imageView4"
+            android:layout_weight="0.08" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:weightSum="1">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="D"
+            android:id="@+id/button"
+            android:layout_gravity="center"
+            android:onClick="chooseAnswer"/>
+        <ImageView
+            android:layout_width="65dp"
+            android:layout_height="75dp"
+            android:src="@drawable/pattern5"
+            android:id="@+id/imageView6"
+            android:layout_weight="0.08" />
+    </LinearLayout>
+
+    <Button
+        android:layout_width="179dp"
+        android:layout_height="wrap_content"
+        android:text="Nicht erkannt"
+        android:id="@+id/button5"
+        android:layout_gravity="center_horizontal"
+        android:onClick="chooseAnswer"/>
 
 </LinearLayout>
