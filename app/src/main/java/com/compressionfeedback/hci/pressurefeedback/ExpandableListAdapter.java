@@ -60,7 +60,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         if (null != data) {
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
             int pattern=preferences.getInt(data.packageName+"pattern",1);
-            int strength =preferences.getInt(data.packageName+"strength",0);
+            int strength =preferences.getInt(data.packageName+"strength_choice",0);
 
             TextView appName = (TextView) convertView.findViewById(R.id.app_name);
             TextView patternChoice = (TextView) convertView.findViewById(R.id.pattern);

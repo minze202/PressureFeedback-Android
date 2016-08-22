@@ -204,7 +204,7 @@ public class AppListActivity extends Activity {
             }
         }else {
             appList.put(UNDEFINED,installedApps);
-            if(!((HashSet)group).contains(UNDEFINED)){
+            if(!group.contains(UNDEFINED)){
                 group.add(UNDEFINED);
             }
             SharedPreferences.Editor editor=savedPairValues.edit();

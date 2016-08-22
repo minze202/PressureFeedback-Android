@@ -42,7 +42,6 @@ public class FeedbackService extends NotificationListenerService {
     private DataCollection dataCollectionInstance;
     boolean wasRinging=false;
     private int studyCurrentPattern;
-    private int studyCurrentStrength;
     private SampleCompressionPatterns sampleCompressionPatterns;
     private SampleVibrationPatterns sampleVibrationPatterns;
     private android.os.Handler mHandler=new android.os.Handler();
@@ -170,12 +169,12 @@ public class FeedbackService extends NotificationListenerService {
                     switch (mode) {
                         case "compression":
                             int pattern = preferences.getInt(pack + "pattern", 1);
-                            int strength = preferences.getInt(pack + "strength", 0);
+                            sampleCompressionPatterns.changePressure(preferences.getInt(pack+"strength",50));
                             if (pattern == 0) {
                                 dataCollectionInstance.addAction("Notification von " + pack + " tritt ein. Es wird wie eingestellt kein Feedback generiert.");
                                 return;
                             }
-                            sendCompressionFeedback(pattern, strength);
+                            sendCompressionFeedback(pattern, 1);
 
                             break;
                         case "sound":
@@ -205,12 +204,12 @@ public class FeedbackService extends NotificationListenerService {
                 String mode = preferences.getString("appMode", "sound");
                 switch (mode) {
                     case "compression":
+                        sampleCompressionPatterns.changePressure(100);
                         int pattern = studyCurrentPattern;
-                        int strength = studyCurrentStrength;
                         if (pattern == 0) {
                             return;
                         }
-                        sendCompressionFeedback(pattern, strength);
+                        sendCompressionFeedback(pattern, 1);
 
                         break;
 
@@ -281,39 +280,13 @@ public class FeedbackService extends NotificationListenerService {
             } else if (intent.getStringExtra("mode").equals("sound")) {
                 sendSoundFeedback(intent.getIntExtra("audioTitle",1));
             } else if (intent.getStringExtra("mode").equals("compression")) {
-                sendCompressionFeedback(intent.getIntExtra("pattern", 1), intent.getIntExtra("strength", 1));
-            }else if (intent.getStringExtra("mode").equals("test_compression_strength")) {
-                sampleCompressionPatterns.changePressure(intent.getIntExtra("strength",100));
-                sendCompressionFeedback(1, 1);
-                sampleCompressionPatterns.changePressure(sharedPreferences.getInt("compression_strength",100));
-
-
-            }else if (intent.getStringExtra("mode").equals("accept_compression_strength")) {
-                sampleCompressionPatterns.changePressure(intent.getIntExtra("strength",100));
-                SharedPreferences.Editor editor=sharedPreferences.edit();
-                editor.putInt("compression_strength",intent.getIntExtra("strength",100));
-                editor.apply();
-
-
-            }else if (intent.getStringExtra("mode").equals("test_vibration_strength")) {
-                sampleVibrationPatterns.setVibrationStrength(intent.getIntExtra("strength",100));
-                sendVibrationFeedback(1);
-                sampleVibrationPatterns.setVibrationStrength(sharedPreferences.getInt("vibration_strength",100));
-
-
-            }else if (intent.getStringExtra("mode").equals("accept_vibration_strength")) {
-                sampleVibrationPatterns.setVibrationStrength(intent.getIntExtra("strength",100));
-                SharedPreferences.Editor editor=sharedPreferences.edit();
-                editor.putInt("vibration_strength",intent.getIntExtra("strength",100));
-                editor.apply();
-
-
+                sampleCompressionPatterns.changePressure(intent.getIntExtra("strength",50));
+                sendCompressionFeedback(intent.getIntExtra("pattern", 1), 1);
             }
             else if (intent.getStringExtra("mode").equals("randomFeedback")) {
                 if(dataCollectionInstance.isCollectingData()) {
                     Random random = new Random();
                     studyCurrentPattern = random.nextInt(4) + 1;
-                    studyCurrentStrength = 1;
                     String mode = sharedPreferences.getString("appMode", "sound");
                     long id = System.currentTimeMillis();
                     notifyUser(id, mode);

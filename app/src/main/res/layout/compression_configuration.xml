@@ -21,6 +21,18 @@
         android:id="@+id/strength_choice"
         android:spinnerMode="dropdown" />
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/custom_pressure"
+        android:id="@+id/checkBox" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:id="@+id/seekBar" />
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"

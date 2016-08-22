@@ -73,6 +73,7 @@
     <string name="add_category">Kategorie hinzufügen</string>
     <string name="delete_category">Kategorie löschen</string>
     <string name="sort_apps">Apps automatisch sortieren</string>
+    <string name="custom_pressure">Benutzerdefinierter Druck</string>
 
 
     <string-array name="patterns_array">
